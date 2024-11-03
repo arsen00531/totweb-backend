@@ -43,7 +43,7 @@ export class UserService {
     return user;
   }
 
-  async login(loginDto: LoginDto, res: Response) {
+  async login(loginDto: LoginDto, req: Request, res: Response) {
     const user = await this.userRepository.findOneBy({ email: loginDto.email });
 
     if (!user) {
@@ -59,11 +59,15 @@ export class UserService {
     const accessPayload: TAccessPayload = {
       userId: user.id,
       email: user.email,
+      role: user.role,
     };
 
     const accessToken =
       await this.tokenService.generateAccessToken(accessPayload);
-    const token = await this.tokenService.saveToken(null, user.id, null);
+    const token = await this.tokenService.saveTokenLogin(
+      user,
+      req.headers['user-agent'],
+    );
 
     const response = {
       accessToken: accessToken,
@@ -73,16 +77,32 @@ export class UserService {
 
     res.cookie('refreshToken', token.refreshToken, {
       maxAge: 30 * 24 * 60 * 60 * 1000,
+      sameSite: 'none',
       httpOnly: true,
-      secure: false ? process.env.NODE_ENV === 'development' : true,
+      secure: true,
     });
     res.json(response);
 
     return response;
   }
 
+  async logout(req: Request, res: Response) {
+    const refreshToken = req.cookies.refreshToken;
+    const tokenData =
+      await this.tokenService.validateRefreshToken(refreshToken);
+
+    await this.tokenService.deleteOneByAgent(
+      tokenData.clientAgent,
+      tokenData.userId,
+    );
+
+    res.clearCookie('refreshToken');
+  }
+
   async refresh(req: Request, res: Response) {
     const cookies = req.cookies;
+    const clientAgent = req.headers['user-agent'];
+    console.log(cookies);
 
     if (!cookies.refreshToken) {
       throw new UnauthorizedException('Refresh token was not found');
@@ -92,7 +112,11 @@ export class UserService {
 
     const userData: TRefreshPayload =
       await this.tokenService.validateRefreshToken(refreshTokenCookie);
-    const tokenFromDB = await this.tokenService.findOne(userData.tokenId);
+    const tokenFromDB = await this.tokenService.findOneByAgent(
+      clientAgent,
+      userData.userId,
+    );
+    console.log(userData, tokenFromDB);
 
     if (!userData || !tokenFromDB) {
       throw new UnauthorizedException('Refresh token was not found');
@@ -107,19 +131,15 @@ export class UserService {
     const accessPayload: TAccessPayload = {
       userId: user.id,
       email: user.email,
+      role: user.role,
     };
 
     const accessToken =
       await this.tokenService.generateAccessToken(accessPayload);
-    const token = await this.tokenService.saveToken(
-      tokenFromDB.id,
-      user.id,
-      refreshTokenCookie,
-    );
 
     const response = {
       accessToken: accessToken,
-      refreshToken: token.refreshToken,
+      refreshToken: refreshTokenCookie,
       user: user,
     };
 

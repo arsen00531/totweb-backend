@@ -1,19 +1,32 @@
 import {
+  Injectable,
   CanActivate,
   ExecutionContext,
-  Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
+import { Role } from '../entities/user.entity';
+import { ROLES_KEY } from '../decorators/role.decorator';
 import { Request } from 'express';
-import { TokenService } from 'src/token/token.service';
 import { TAccessPayload } from 'src/token/types/payload.type';
+import { TokenService } from 'src/token/token.service';
 
 @Injectable()
-export class AuthGuard implements CanActivate {
-  constructor(private readonly tokenService: TokenService) {}
+export class RoleGuard implements CanActivate {
+  constructor(
+    private reflector: Reflector,
+    private readonly tokenService: TokenService,
+  ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const request: Request = context.switchToHttp().getRequest();
+    const requiredRoles = this.reflector.getAllAndOverride<Role[]>(ROLES_KEY, [
+      context.getHandler(),
+      context.getClass(),
+    ]);
+    if (!requiredRoles) {
+      return true;
+    }
+    const request = context.switchToHttp().getRequest();
     const token = this.extractTokenFromHeader(request);
     if (!token) {
       throw new UnauthorizedException();
@@ -26,11 +39,10 @@ export class AuthGuard implements CanActivate {
         throw new UnauthorizedException('invalid access token');
       }
 
-      request['user'] = payload;
+      return requiredRoles.some((role) => payload.role === role);
     } catch {
       throw new UnauthorizedException();
     }
-    return true;
   }
 
   private extractTokenFromHeader(request: Request): string | undefined {

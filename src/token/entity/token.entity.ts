@@ -9,6 +9,9 @@ export class Token {
   @Column({ nullable: true })
   refreshToken: string;
 
+  @Column({ nullable: false })
+  browser: string;
+
   @ManyToOne(() => User)
   user: User;
 }

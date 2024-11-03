@@ -5,21 +5,19 @@ import {
   Post,
   Req,
   Res,
-  UseGuards,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/createUser.dto';
 import { LoginDto } from './dto/login.dto';
-import { AuthGuard } from './guards/auth.guard';
 import { Request, Response } from 'express';
 
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Post('create')
+  @Post('registration')
   @UsePipes(new ValidationPipe())
   create(@Body() createUserDto: CreateUserDto) {
     return this.userService.create(createUserDto);
@@ -27,8 +25,13 @@ export class UserController {
 
   @Post('login')
   @UsePipes(new ValidationPipe())
-  login(@Body() loginDto: LoginDto, @Res() res: Response) {
-    return this.userService.login(loginDto, res);
+  login(@Body() loginDto: LoginDto, @Req() req: Request, @Res() res: Response) {
+    return this.userService.login(loginDto, req, res);
+  }
+
+  @Get('logout')
+  logout(@Req() req: Request, @Res() res: Response) {
+    return this.userService.logout(req, res);
   }
 
   @Get('refresh')
@@ -36,9 +39,9 @@ export class UserController {
     return this.userService.refresh(req, res);
   }
 
-  @UseGuards(AuthGuard)
   @Get('findAll')
-  findAll() {
+  findAll(@Req() req: Request) {
+    console.log(req.headers['user-agent']);
     return this.userService.findAll();
   }
 }

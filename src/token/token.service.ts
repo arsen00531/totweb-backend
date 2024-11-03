@@ -24,51 +24,64 @@ export class TokenService {
     private readonly configService: ConfigService,
   ) {}
 
-  async saveToken(
-    tokenId: number | null,
+  async saveTokenLogin(user: User, clientAgent: string): Promise<Token> {
+    const tokenDB = await this.tokenRepository.findOneBy({
+      browser: clientAgent,
+      user: { id: user.id },
+    });
+
+    if (!tokenDB) {
+      const token = await this.createToken(user, clientAgent);
+      return token;
+    }
+
+    const refreshPayload: TRefreshPayload = {
+      clientAgent: clientAgent,
+      userId: user.id,
+      email: user.email,
+      role: user.role,
+    };
+
+    tokenDB.refreshToken = await this.generateRefreshToken(refreshPayload);
+
+    return tokenDB;
+  }
+
+  async saveTokenRefresh(
     userId: number,
     refreshToken: string,
-  ) {
+    clientAgent: string,
+  ): Promise<Token> {
     const user = await this.userService.findOne(userId);
 
     if (!user) {
       throw new BadRequestException('User was not found');
     }
 
-    if (tokenId === null) {
-      const token = await this.createToken(user);
+    const tokenDB = await this.tokenRepository.findOneBy({
+      browser: clientAgent,
+    });
 
-      return token;
+    if (!tokenDB) {
+      await this.createToken(user, clientAgent);
+
+      return tokenDB;
     }
 
-    const tokenData = await this.tokenRepository.findOneBy({ id: tokenId });
-
-    if (!tokenData) {
-      const token = await this.createToken(user);
-      return token;
-    }
-
-    if (refreshToken === null) {
-      refreshToken = await this.generateRefreshToken({
-        tokenId: tokenData.id,
-        userId: user.id,
-        email: user.email,
-      });
-    }
-
-    tokenData.refreshToken = refreshToken;
-    const token = await this.tokenRepository.save({ refreshToken });
-
-    return token;
+    return tokenDB;
   }
 
-  async createToken(user: User) {
-    const token = this.tokenRepository.create({ user: user });
+  async createToken(user: User, clientAgent: string) {
+    const token = this.tokenRepository.create({
+      user: user,
+      browser: clientAgent,
+    });
 
     const refreshPayload: TRefreshPayload = {
-      tokenId: token.id,
+      clientAgent: clientAgent,
       userId: user.id,
       email: user.email,
+      role: user.role,
     };
 
     const refreshToken = await this.generateRefreshToken(refreshPayload);
@@ -90,9 +103,12 @@ export class TokenService {
 
   async validateRefreshToken(token: string) {
     try {
-      const userData = await this.jwtService.verifyAsync(token, {
-        secret: this.configService.getOrThrow('JWT_REFRESH_KEY'),
-      });
+      const userData: TRefreshPayload = await this.jwtService.verifyAsync(
+        token,
+        {
+          secret: this.configService.getOrThrow('JWT_REFRESH_KEY'),
+        },
+      );
 
       return userData;
     } catch (error) {
@@ -118,17 +134,21 @@ export class TokenService {
     return token;
   }
 
-  // async generateTokenPair(payload: TPayload) {
-  //     const accessToken = await this.generateAccessToken(payload)
-  //     const refreshToken = await this.generateRefreshToken(payload)
-
-  //     return {
-  //         accessToken,
-  //         refreshToken
-  //     }
-  // }
-
   async findOne(id: number) {
     return this.tokenRepository.findOneBy({ id });
+  }
+
+  async findOneByAgent(clientAgent: string, userId: number) {
+    return this.tokenRepository.findOneBy({
+      browser: clientAgent,
+      user: { id: userId },
+    });
+  }
+
+  async deleteOneByAgent(clientAgent: string, userId: number) {
+    return this.tokenRepository.delete({
+      browser: clientAgent,
+      user: { id: userId },
+    });
   }
 }

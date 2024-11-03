@@ -1,10 +1,14 @@
+import { Role } from 'src/user/entities/user.entity';
+
 export type TRefreshPayload = {
-  tokenId?: number;
+  clientAgent: string;
   userId: number;
   email: string;
+  role: Role;
 };
 
 export type TAccessPayload = {
   userId: number;
   email: string;
+  role: Role;
 };
