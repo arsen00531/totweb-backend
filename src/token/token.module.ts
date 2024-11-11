@@ -1,21 +1,25 @@
 import { forwardRef, Module } from '@nestjs/common';
-import { TokenService } from './token.service';
 import { TokenController } from './token.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Token } from './entity/token.entity';
 import { JwtModule } from '@nestjs/jwt';
-import { UserModule } from 'src/user/user.module';
+import { StudentModule } from 'src/student/student.module';
+import { TokenStudentService } from './tokenUser.service';
+import { TokenCompanyService } from './tokenCompany.service';
+import { CompanyModule } from 'src/company/company.module';
+import { StudentToken } from './entity/studentToken.entity';
+import { CompanyToken } from './entity/companyToken.entity';
 
 @Module({
   imports: [
-    forwardRef(() => UserModule),
-    TypeOrmModule.forFeature([Token]),
+    forwardRef(() => StudentModule),
+    forwardRef(() => CompanyModule),
+    TypeOrmModule.forFeature([StudentToken, CompanyToken]),
     JwtModule.register({
       global: true,
     }),
   ],
-  providers: [TokenService],
+  providers: [TokenStudentService, TokenCompanyService],
   controllers: [TokenController],
-  exports: [TokenService],
+  exports: [TokenStudentService, TokenCompanyService],
 })
 export class TokenModule {}

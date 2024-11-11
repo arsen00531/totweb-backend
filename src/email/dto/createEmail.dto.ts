@@ -1,15 +1,11 @@
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsArray, IsNotEmpty, IsString } from 'class-validator';
 
 export class CreateEmailDto {
-  @IsString()
+  @IsArray()
   @IsNotEmpty()
-  to: string;
+  to: string[];
 
   @IsString()
   @IsNotEmpty()
-  subject: string;
-
-  @IsString()
-  @IsNotEmpty()
-  text: string;
+  link: string;
 }

@@ -1,19 +1,24 @@
 import { Module } from '@nestjs/common';
-import { UserModule } from './user/user.module';
+import { StudentModule } from './student/student.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { User } from './user/entities/user.entity';
+import { Student } from './student/entities/student.entity';
 import { TokenModule } from './token/token.module';
-import { Token } from './token/entity/token.entity';
 import { EmailModule } from './email/email.module';
-import { MailerModule } from '@nestjs-modules/mailer';
-import { PugAdapter } from '@nestjs-modules/mailer/dist/adapters/pug.adapter';
+import { VacancyModule } from './vacancy/vacancy.module';
+import { CompanyModule } from './company/company.module';
+import { Vacancy } from './vacancy/entities/vacancy.entity';
+import { Company } from './company/entities/company.entity';
+import { ProfessionModule } from './profession/profession.module';
+import { Profession } from './profession/entities/profession.entity';
+import { StudentToken } from './token/entity/studentToken.entity';
+import { CompanyToken } from './token/entity/companyToken.entity';
 
 const ENV = process.env.NODE_ENV;
 
 @Module({
   imports: [
-    UserModule,
+    StudentModule,
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: [`.env.${ENV}`, ENV === 'development' ? '.env' : ''],
@@ -25,33 +30,21 @@ const ENV = process.env.NODE_ENV;
         type: 'postgres',
         url: configService.getOrThrow('TYPEORM_URL'),
         synchronize: true ? ENV === 'development' : false,
-        entities: [User, Token],
-      }),
-    }),
-    MailerModule.forRootAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
-        transport: {
-          host: configService.getOrThrow('SMTP_HOST'),
-          port: configService.getOrThrow('SMTP_PORT'),
-          secure: false,
-          auth: {
-            user: configService.getOrThrow('SMTP_USER'),
-            pass: configService.getOrThrow('SMTP_PASS'),
-          },
-        },
-        template: {
-          dir: __dirname + './template/notification',
-          adapter: new PugAdapter({ inlineCssEnabled: true }),
-          options: {
-            strict: true,
-          },
-        },
+        entities: [
+          Student,
+          StudentToken,
+          CompanyToken,
+          Vacancy,
+          Company,
+          Profession,
+        ],
       }),
     }),
     TokenModule,
     EmailModule,
+    VacancyModule,
+    CompanyModule,
+    ProfessionModule,
   ],
   controllers: [],
   providers: [],

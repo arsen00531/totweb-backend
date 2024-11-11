@@ -1,14 +1,27 @@
-import { Role } from 'src/user/entities/user.entity';
+import { Role } from 'src/student/entities/student.entity';
 
-export type TRefreshPayload = {
+export type TRefreshUserPayload = {
   clientAgent: string;
   userId: number;
   email: string;
-  role: Role;
+  role: Role[];
 };
 
-export type TAccessPayload = {
+export type TAccessUserPayload = {
   userId: number;
   email: string;
-  role: Role;
+  role: Role[];
+};
+
+export type TRefreshCompanyPayload = {
+  clientAgent: string;
+  companyId: number;
+  email: string;
+  role: Role[];
+};
+
+export type TAccessCompanyPayload = {
+  companyId: number;
+  email: string;
+  role: Role[];
 };
