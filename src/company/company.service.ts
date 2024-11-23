@@ -20,6 +20,7 @@ import {
   TAccessCompanyPayload,
   TRefreshCompanyPayload,
 } from 'src/token/types/payload.type';
+import { UpdateCompanyDto } from './dto/updateCompany.dto';
 
 @Injectable()
 export class CompanyService {
@@ -80,7 +81,7 @@ export class CompanyService {
     const accessPayload: TAccessCompanyPayload = {
       companyId: company.id,
       email: company.email,
-      role: company.role,
+      role: company.roles,
     };
 
     const accessToken =
@@ -142,8 +143,13 @@ export class CompanyService {
       throw new UnauthorizedException('Refresh token was not found');
     }
 
-    const company = await this.companyRepository.findOneBy({
-      id: companyData.companyId,
+    const company = await this.companyRepository.findOne({
+      where: {
+        id: companyData.companyId,
+      },
+      relations: {
+        vacancies: true,
+      },
     });
 
     if (!company) {
@@ -153,7 +159,7 @@ export class CompanyService {
     const accessPayload: TAccessCompanyPayload = {
       companyId: company.id,
       email: company.email,
-      role: company.role,
+      role: company.roles,
     };
 
     const accessToken =
@@ -192,5 +198,19 @@ export class CompanyService {
 
   async findOne(id: number) {
     return this.companyRepository.findOneBy({ id });
+  }
+
+  async update(updateCompanyDto: UpdateCompanyDto, id: number) {
+    const company = await this.companyRepository.findOneBy({ id });
+
+    if (!company) {
+      throw new BadRequestException('Company was not found');
+    }
+
+    Object.assign(company, {
+      ...updateCompanyDto,
+    });
+
+    return this.companyRepository.save(company);
   }
 }

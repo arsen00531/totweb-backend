@@ -10,8 +10,11 @@ import { Repository } from 'typeorm';
 import { StudentService } from 'src/student/student.service';
 import { Student } from 'src/student/entities/student.entity';
 import { ConfigService } from '@nestjs/config';
-import { StudentToken } from './entity/studentToken.entity';
-import { TAccessUserPayload, TRefreshUserPayload } from './types/payload.type';
+import { StudentToken } from './entities/studentToken.entity';
+import {
+  TAccessStudentPayload,
+  TRefreshStudentPayload,
+} from './types/payload.type';
 
 @Injectable()
 export class TokenStudentService {
@@ -25,24 +28,24 @@ export class TokenStudentService {
   ) {}
 
   async saveTokenLogin(
-    user: Student,
+    student: Student,
     clientAgent: string,
   ): Promise<StudentToken> {
     const tokenDB = await this.tokenRepository.findOneBy({
       browser: clientAgent,
-      student: { id: user.id },
+      student: { id: student.id },
     });
 
     if (!tokenDB) {
-      const token = await this.createToken(user, clientAgent);
+      const token = await this.createToken(student, clientAgent);
       return token;
     }
 
-    const refreshPayload: TRefreshUserPayload = {
+    const refreshPayload: TRefreshStudentPayload = {
       clientAgent: clientAgent,
-      userId: user.id,
-      email: user.email,
-      role: user.role,
+      studentId: student.id,
+      email: student.email,
+      role: student.roles,
     };
 
     tokenDB.refreshToken = await this.generateRefreshToken(refreshPayload);
@@ -80,11 +83,11 @@ export class TokenStudentService {
       browser: clientAgent,
     });
 
-    const refreshPayload: TRefreshUserPayload = {
+    const refreshPayload: TRefreshStudentPayload = {
       clientAgent: clientAgent,
-      userId: user.id,
+      studentId: user.id,
       email: user.email,
-      role: user.role,
+      role: user.roles,
     };
 
     const refreshToken = await this.generateRefreshToken(refreshPayload);
@@ -106,12 +109,10 @@ export class TokenStudentService {
 
   async validateRefreshToken(token: string) {
     try {
-      const userData: TRefreshUserPayload = await this.jwtService.verifyAsync(
-        token,
-        {
+      const userData: TRefreshStudentPayload =
+        await this.jwtService.verifyAsync(token, {
           secret: this.configService.getOrThrow('JWT_REFRESH_KEY'),
-        },
-      );
+        });
 
       return userData;
     } catch (error) {
@@ -119,7 +120,7 @@ export class TokenStudentService {
     }
   }
 
-  async generateAccessToken(payload: TAccessUserPayload) {
+  async generateAccessToken(payload: TAccessStudentPayload) {
     const token = await this.jwtService.signAsync(payload, {
       expiresIn: this.configService.getOrThrow('JWT_ACCESS_LIVE'),
       secret: this.configService.getOrThrow('JWT_ACCESS_KEY'),
@@ -128,7 +129,7 @@ export class TokenStudentService {
     return token;
   }
 
-  async generateRefreshToken(payload: TRefreshUserPayload) {
+  async generateRefreshToken(payload: TRefreshStudentPayload) {
     const token = await this.jwtService.signAsync(payload, {
       expiresIn: this.configService.getOrThrow('JWT_REFRESH_LIVE'),
       secret: this.configService.getOrThrow('JWT_REFRESH_KEY'),

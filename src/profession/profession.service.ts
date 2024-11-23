@@ -28,6 +28,9 @@ export class ProfessionService {
   }
 
   async findOne(id: number) {
+    if (!id) {
+      return;
+    }
     return this.professionRepository.findOneBy({ id });
   }
 }

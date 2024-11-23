@@ -11,8 +11,16 @@ import { Vacancy } from './vacancy/entities/vacancy.entity';
 import { Company } from './company/entities/company.entity';
 import { ProfessionModule } from './profession/profession.module';
 import { Profession } from './profession/entities/profession.entity';
-import { StudentToken } from './token/entity/studentToken.entity';
-import { CompanyToken } from './token/entity/companyToken.entity';
+import { StudentToken } from './token/entities/studentToken.entity';
+import { CompanyToken } from './token/entities/companyToken.entity';
+import { NotificationModule } from './notification/notification.module';
+import { ResponseModule } from './response/response.module';
+import { Notification } from './notification/entities/notification.entity';
+import { Response } from './response/entities/response.entity';
+import { FileModule } from './file/file.module';
+import { NestjsFormDataModule } from 'nestjs-form-data';
+import { ExperienceModule } from './experience/experience.module';
+import { Experience } from './experience/entities/experience.entity';
 
 const ENV = process.env.NODE_ENV;
 
@@ -37,14 +45,22 @@ const ENV = process.env.NODE_ENV;
           Vacancy,
           Company,
           Profession,
+          Notification,
+          Response,
+          Experience,
         ],
       }),
     }),
+    NestjsFormDataModule.config({ isGlobal: true }),
     TokenModule,
     EmailModule,
     VacancyModule,
     CompanyModule,
     ProfessionModule,
+    NotificationModule,
+    ResponseModule,
+    FileModule,
+    ExperienceModule,
   ],
   controllers: [],
   providers: [],

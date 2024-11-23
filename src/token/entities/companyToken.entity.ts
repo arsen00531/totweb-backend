@@ -1,5 +1,11 @@
 import { Company } from 'src/company/entities/company.entity';
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 @Entity()
 export class CompanyToken {
@@ -12,6 +18,9 @@ export class CompanyToken {
   @Column({ nullable: false })
   browser: string;
 
-  @ManyToOne(() => Company, (company) => company.companyToken)
+  @JoinColumn()
+  @ManyToOne(() => Company, (company) => company.companyTokens, {
+    onDelete: 'CASCADE',
+  })
   company: Company;
 }

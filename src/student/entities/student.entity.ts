@@ -1,4 +1,12 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Experience } from 'src/experience/entities/experience.entity';
+import { Response } from 'src/response/entities/response.entity';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 export enum Role {
   Student = 'student',
@@ -6,7 +14,7 @@ export enum Role {
   Admin = 'admin',
 }
 
-@Entity('users')
+@Entity('student')
 export class Student {
   @PrimaryGeneratedColumn()
   id: number;
@@ -20,6 +28,27 @@ export class Student {
   @Column({ unique: true })
   email: string;
 
+  @Column({ default: null })
+  university: string;
+
+  @Column({ default: null })
+  lastYear: number;
+
+  @Column({ default: null })
+  contactEmail: string;
+
+  @Column({ default: null })
+  contactPhone: string;
+
+  @Column('varchar', { array: true, default: [] })
+  keySkills: string[];
+
+  @Column('varchar', { array: true, default: [] })
+  preferredFields: string[];
+
+  @Column('varchar', { array: true, default: [] })
+  locationPreferences: string[];
+
   @Column({ unique: true })
   activateLink: string;
 
@@ -27,8 +56,22 @@ export class Student {
   isActivated: boolean;
 
   @Column('enum', { enum: Role, array: true, default: [Role.Student] })
-  role: Role[];
+  roles: Role[];
 
   @Column()
   password: string;
+
+  @Column({ default: null })
+  photo: string;
+
+  @Column({ default: null })
+  profession: string;
+
+  @JoinColumn()
+  @OneToMany(() => Response, (response) => response.student)
+  responses: Response[];
+
+  @JoinColumn()
+  @OneToMany(() => Experience, (experience) => experience.student)
+  experiences: Experience[];
 }

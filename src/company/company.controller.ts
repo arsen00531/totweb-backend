@@ -2,10 +2,13 @@ import {
   Body,
   Controller,
   Get,
+  ParseIntPipe,
   Post,
+  Put,
   Query,
   Req,
   Res,
+  UseGuards,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
@@ -13,6 +16,11 @@ import { CompanyService } from './company.service';
 import { CreateCompanyDto } from './dto/createCompany.dto';
 import { LoginCompanyDto } from 'src/email/dto/login.dto';
 import { Request, Response } from 'express';
+import { UpdateCompanyDto } from './dto/updateCompany.dto';
+import { Roles } from 'src/student/decorators/role.decorator';
+import { Role } from 'src/student/entities/student.entity';
+import { CompanyAuthGuard } from './guards/companyAuth.guard';
+import { CompanyRoleGuard } from './guards/companyRole.guard';
 
 @Controller('company')
 export class CompanyController {
@@ -47,5 +55,16 @@ export class CompanyController {
   @Get('activate')
   activate(@Query('link') link: string) {
     return this.companyService.activate(link);
+  }
+
+  @Roles(Role.Company)
+  @UseGuards(CompanyAuthGuard, CompanyRoleGuard)
+  @UsePipes(new ValidationPipe())
+  @Put('update')
+  update(
+    @Body() updateCompanyDto: UpdateCompanyDto,
+    @Query('id', ParseIntPipe) id: number,
+  ) {
+    return this.companyService.update(updateCompanyDto, id);
   }
 }

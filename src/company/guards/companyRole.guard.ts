@@ -31,8 +31,8 @@ export class CompanyRoleGuard implements CanActivate {
     const company = await this.companyService.findOne(companyPayload.companyId);
 
     if (!company) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException('wrong role');
     }
-    return requiredRoles.some((role) => company.role.includes(role));
+    return requiredRoles.some((role) => company.roles.includes(role));
   }
 }

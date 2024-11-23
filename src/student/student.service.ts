@@ -17,81 +17,96 @@ import { ConfigService } from '@nestjs/config';
 import { v4 } from 'uuid';
 import { TokenStudentService } from 'src/token/tokenUser.service';
 import {
-  TAccessUserPayload,
-  TRefreshUserPayload,
+  TAccessStudentPayload,
+  TRefreshStudentPayload,
 } from 'src/token/types/payload.type';
+import { UpdateStudentDto } from './dto/updateStudent.dto';
+import { FileService } from 'src/file/file.service';
+import { UpdateStudentFileDto } from './dto/updateStudentFile.dto';
+import { ProfessionService } from 'src/profession/profession.service';
+import { ExperienceService } from 'src/experience/experience.service';
 
 @Injectable()
 export class StudentService {
   constructor(
     @InjectRepository(Student)
-    private readonly userRepository: Repository<Student>,
+    private readonly studentRepository: Repository<Student>,
     @Inject(forwardRef(() => TokenStudentService))
     private readonly tokenService: TokenStudentService,
     private readonly emailService: EmailService,
     private readonly configService: ConfigService,
+    private readonly fileService: FileService,
+    private readonly professionService: ProfessionService,
+    private readonly experienceService: ExperienceService,
   ) {}
 
-  async create(createUserDto: CreateStudentDto) {
-    const candidate = await this.userRepository.findOneBy({
-      email: createUserDto.email,
+  async create(createStudentDto: CreateStudentDto) {
+    const candidate = await this.studentRepository.findOneBy({
+      email: createStudentDto.email,
     });
 
     if (candidate) {
       throw new BadRequestException('User already exists');
     }
 
-    const password = await hash(createUserDto.password, 5);
+    const password = await hash(createStudentDto.password, 5);
     const activateUrl = v4();
 
     await this.emailService.sendMailSandBox({
-      to: [createUserDto.email],
-      link: `${this.configService.getOrThrow('API_URL')}/user/activate?link=${activateUrl}`,
+      to: [createStudentDto.email],
+      link: `${this.configService.getOrThrow('API_URL')}/student/activate?link=${activateUrl}`,
     });
 
-    const user = this.userRepository.save({
-      ...createUserDto,
+    const student = this.studentRepository.save({
+      ...createStudentDto,
       activateLink: activateUrl,
       password: password,
     });
 
-    return user;
+    return student;
   }
 
   async login(loginDto: LoginStudentDto, req: Request, res: Response) {
-    const user = await this.userRepository.findOneBy({ email: loginDto.email });
+    const student = await this.studentRepository.findOne({
+      where: {
+        email: loginDto.email,
+      },
+      relations: {
+        experiences: true,
+      },
+    });
 
-    if (!user) {
+    if (!student) {
       throw new BadRequestException('email or password are incorrect');
     }
 
-    if (!user.isActivated) {
+    if (!student.isActivated) {
       throw new UnauthorizedException('email is not activated');
     }
 
-    const isValidPassword = await compare(loginDto.password, user.password);
+    const isValidPassword = await compare(loginDto.password, student.password);
 
     if (!isValidPassword) {
       throw new BadRequestException('email or password are incorrect');
     }
 
-    const accessPayload: TAccessUserPayload = {
-      userId: user.id,
-      email: user.email,
-      role: user.role,
+    const accessPayload: TAccessStudentPayload = {
+      studentId: student.id,
+      email: student.email,
+      role: student.roles,
     };
 
     const accessToken =
       await this.tokenService.generateAccessToken(accessPayload);
     const token = await this.tokenService.saveTokenLogin(
-      user,
+      student,
       req.headers['user-agent'],
     );
 
     const response = {
       accessToken: accessToken,
       refreshToken: token.refreshToken,
-      user: user,
+      student: student,
     };
 
     res.cookie('refreshToken', token.refreshToken, {
@@ -112,7 +127,7 @@ export class StudentService {
 
     await this.tokenService.deleteOneByAgent(
       tokenData.clientAgent,
-      tokenData.userId,
+      tokenData.studentId,
     );
 
     res.clearCookie('refreshToken');
@@ -128,27 +143,34 @@ export class StudentService {
 
     const refreshTokenCookie = cookies.refreshToken;
 
-    const userData: TRefreshUserPayload =
+    const studentData: TRefreshStudentPayload =
       await this.tokenService.validateRefreshToken(refreshTokenCookie);
     const tokenFromDB = await this.tokenService.findOneByAgent(
       clientAgent,
-      userData.userId,
+      studentData.studentId,
     );
 
-    if (!userData || !tokenFromDB) {
+    if (!studentData || !tokenFromDB) {
       throw new UnauthorizedException('Refresh token was not found');
     }
 
-    const user = await this.userRepository.findOneBy({ id: userData.userId });
+    const student = await this.studentRepository.findOne({
+      where: {
+        id: studentData.studentId,
+      },
+      relations: {
+        experiences: true,
+      },
+    });
 
-    if (!user) {
+    if (!student) {
       throw new UnauthorizedException('User was not found');
     }
 
-    const accessPayload: TAccessUserPayload = {
-      userId: user.id,
-      email: user.email,
-      role: user.role,
+    const accessPayload: TAccessStudentPayload = {
+      studentId: student.id,
+      email: student.email,
+      role: student.roles,
     };
 
     const accessToken =
@@ -157,7 +179,7 @@ export class StudentService {
     const response = {
       accessToken: accessToken,
       refreshToken: refreshTokenCookie,
-      user: user,
+      student: student,
     };
 
     res.json(response);
@@ -168,22 +190,63 @@ export class StudentService {
       throw new BadRequestException('Link is invalid');
     }
 
-    const user = await this.userRepository.findOneBy({ activateLink: link });
+    const student = await this.studentRepository.findOneBy({
+      activateLink: link,
+    });
 
-    if (!user) {
+    if (!student) {
       throw new BadRequestException('User was not found');
     }
 
-    user.isActivated = true;
+    student.isActivated = true;
 
-    return await this.userRepository.save(user);
+    return await this.studentRepository.save(student);
   }
 
   async findAll() {
-    return this.userRepository.find();
+    return this.studentRepository.find();
   }
 
   async findOne(id: number) {
-    return this.userRepository.findOneBy({ id });
+    return this.studentRepository.findOne({
+      where: {
+        id,
+      },
+      relations: { experiences: true },
+    });
+  }
+
+  async update(updateStudentDto: UpdateStudentDto, id: number) {
+    const student = await this.studentRepository.findOne({
+      where: {
+        id,
+      },
+    });
+
+    if (!student) {
+      throw new BadRequestException('Student was not found');
+    }
+
+    Object.assign(student, {
+      ...updateStudentDto,
+    });
+
+    return this.studentRepository.save(student);
+  }
+
+  async updateFile(updateStudentPhotoDto: UpdateStudentFileDto, id: number) {
+    const student = await this.studentRepository.findOneBy({ id });
+
+    if (!student) {
+      throw new BadRequestException('Student was not found');
+    }
+
+    const { fileName } = await this.fileService.uploadFile(
+      updateStudentPhotoDto.addFile,
+      String(id),
+    );
+
+    student.photo = fileName;
+    return this.studentRepository.save(student);
   }
 }

@@ -6,8 +6,8 @@ import { StudentModule } from 'src/student/student.module';
 import { TokenStudentService } from './tokenUser.service';
 import { TokenCompanyService } from './tokenCompany.service';
 import { CompanyModule } from 'src/company/company.module';
-import { StudentToken } from './entity/studentToken.entity';
-import { CompanyToken } from './entity/companyToken.entity';
+import { StudentToken } from './entities/studentToken.entity';
+import { CompanyToken } from './entities/companyToken.entity';
 
 @Module({
   imports: [

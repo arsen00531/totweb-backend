@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { Request } from 'express';
 import { TokenStudentService } from 'src/token/tokenUser.service';
-import { TAccessUserPayload } from 'src/token/types/payload.type';
+import { TAccessStudentPayload } from 'src/token/types/payload.type';
 
 @Injectable()
 export class StudentAuthGuard implements CanActivate {
@@ -19,7 +19,7 @@ export class StudentAuthGuard implements CanActivate {
       throw new UnauthorizedException();
     }
     try {
-      const payload: TAccessUserPayload =
+      const payload: TAccessStudentPayload =
         await this.tokenService.validateAccessToken(token);
 
       if (!payload) {

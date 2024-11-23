@@ -2,7 +2,6 @@ import {
   Body,
   Controller,
   Get,
-  Param,
   ParseIntPipe,
   Post,
   Query,
@@ -24,7 +23,7 @@ import { CompanyRoleGuard } from 'src/company/guards/companyRole.guard';
 export class VacancyController {
   constructor(private readonly vacancyService: VacancyService) {}
 
-  @Roles(Role.Company, Role.Admin)
+  @Roles(Role.Company)
   @UseGuards(CompanyAuthGuard, CompanyRoleGuard)
   @UsePipes(new ValidationPipe())
   @Post('create')
@@ -39,7 +38,7 @@ export class VacancyController {
   }
 
   @Get('findOne')
-  findOne(@Param('id', ParseIntPipe) id: number) {
+  findOne(@Query('id', ParseIntPipe) id: number) {
     return this.vacancyService.findOne(id);
   }
 }

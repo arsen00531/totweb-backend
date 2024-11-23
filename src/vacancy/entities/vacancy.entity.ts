@@ -1,10 +1,12 @@
 import { Company } from 'src/company/entities/company.entity';
 import { Profession } from 'src/profession/entities/profession.entity';
+import { Response } from 'src/response/entities/response.entity';
 import {
   Column,
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
@@ -28,7 +30,7 @@ export class Vacancy {
   description: string;
 
   @Column({ nullable: true })
-  price: number;
+  price: string;
 
   @Column()
   city: string;
@@ -48,10 +50,18 @@ export class Vacancy {
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
 
-  @ManyToOne(() => Company, (company) => company.vacancy)
+  @ManyToOne(() => Company, (company) => company.vacancies, {
+    onDelete: 'CASCADE',
+  })
   company: Company;
 
-  @ManyToOne(() => Profession)
+  @ManyToOne(() => Profession, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn()
   profession: Profession;
+
+  @JoinColumn()
+  @OneToMany(() => Response, (response) => response.vacancy)
+  responses: Response[];
 }

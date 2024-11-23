@@ -8,6 +8,9 @@ import { EmailModule } from 'src/email/email.module';
 import { CompanyModule } from 'src/company/company.module';
 import { StudentAuthGuard } from './guards/studentAuth.guard';
 import { StudentRoleGuard } from './guards/studentRole.guard';
+import { FileModule } from 'src/file/file.module';
+import { ProfessionModule } from 'src/profession/profession.module';
+import { ExperienceModule } from 'src/experience/experience.module';
 
 @Module({
   imports: [
@@ -15,6 +18,9 @@ import { StudentRoleGuard } from './guards/studentRole.guard';
     TypeOrmModule.forFeature([Student]),
     EmailModule,
     CompanyModule,
+    FileModule,
+    ProfessionModule,
+    ExperienceModule,
   ],
   controllers: [StudentController],
   providers: [StudentService, StudentAuthGuard, StudentRoleGuard],

@@ -8,7 +8,7 @@ import { Reflector } from '@nestjs/core';
 import { Role } from '../entities/student.entity';
 import { ROLES_KEY } from '../decorators/role.decorator';
 import { StudentService } from '../student.service';
-import { TRefreshUserPayload } from 'src/token/types/payload.type';
+import { TRefreshStudentPayload } from 'src/token/types/payload.type';
 
 @Injectable()
 export class StudentRoleGuard implements CanActivate {
@@ -26,13 +26,13 @@ export class StudentRoleGuard implements CanActivate {
       return true;
     }
     const request = context.switchToHttp().getRequest();
-    const userPayload: TRefreshUserPayload = request['user'];
+    const userPayload: TRefreshStudentPayload = request['user'];
 
-    const user = await this.StudentService.findOne(userPayload.userId);
+    const user = await this.StudentService.findOne(userPayload.studentId);
 
     if (!user) {
       throw new UnauthorizedException();
     }
-    return requiredRoles.some((role) => user.role.includes(role));
+    return requiredRoles.some((role) => user.roles.includes(role));
   }
 }

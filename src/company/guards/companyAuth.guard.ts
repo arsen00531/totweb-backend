@@ -16,7 +16,7 @@ export class CompanyAuthGuard implements CanActivate {
     const request: Request = context.switchToHttp().getRequest();
     const token = this.extractTokenFromHeader(request);
     if (!token) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException('invalid token');
     }
     try {
       const payload: TAccessCompanyPayload =
@@ -27,7 +27,8 @@ export class CompanyAuthGuard implements CanActivate {
       }
 
       request['company'] = payload;
-    } catch {
+    } catch (err) {
+      console.log(err);
       throw new UnauthorizedException();
     }
     return true;

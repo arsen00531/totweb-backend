@@ -12,6 +12,8 @@ export class StudentToken {
   @Column({ nullable: false })
   browser: string;
 
-  @ManyToOne(() => Student)
+  @ManyToOne(() => Student, {
+    onDelete: 'CASCADE',
+  })
   student: Student;
 }

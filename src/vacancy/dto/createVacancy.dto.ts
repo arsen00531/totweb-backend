@@ -16,8 +16,8 @@ export class CreateVacancyDto {
   @IsNotEmpty()
   description: string;
 
-  @IsNumber()
-  price: number;
+  @IsString()
+  price: string;
 
   @IsString()
   @IsNotEmpty()

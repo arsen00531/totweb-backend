@@ -10,7 +10,7 @@ import { Repository } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
 import { Company } from 'src/company/entities/company.entity';
 import { CompanyService } from 'src/company/company.service';
-import { CompanyToken } from './entity/companyToken.entity';
+import { CompanyToken } from './entities/companyToken.entity';
 import {
   TAccessCompanyPayload,
   TRefreshCompanyPayload,
@@ -45,7 +45,7 @@ export class TokenCompanyService {
       clientAgent: clientAgent,
       companyId: company.id,
       email: company.email,
-      role: company.role,
+      role: company.roles,
     };
 
     tokenDB.refreshToken = await this.generateRefreshToken(refreshPayload);
@@ -87,7 +87,7 @@ export class TokenCompanyService {
       clientAgent: clientAgent,
       companyId: company.id,
       email: company.email,
-      role: company.role,
+      role: company.roles,
     };
 
     const refreshToken = await this.generateRefreshToken(refreshPayload);

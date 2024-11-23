@@ -39,6 +39,7 @@
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
     "cookie-parser": "^1.4.7",
+    "nestjs-form-data": "^1.9.92",
     "nodemailer": "^6.9.16",
     "pg": "^8.13.1",
     "pug": "^3.0.3",

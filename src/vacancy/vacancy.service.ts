@@ -64,7 +64,8 @@ export class VacancyService {
 
     const queryBuilder = this.vacancyRepository
       .createQueryBuilder('vacancy')
-      .leftJoinAndSelect('vacancy.profession', 'profession');
+      .leftJoinAndSelect('vacancy.profession', 'profession')
+      .leftJoinAndSelect('vacancy.company', 'company');
 
     if (search) {
       queryBuilder.andWhere('LOWER(vacancy.title) LIKE :search', {
@@ -98,6 +99,15 @@ export class VacancyService {
   }
 
   async findOne(id: number) {
-    return this.vacancyRepository.findOneBy({ id });
+    return this.vacancyRepository.findOne({
+      where: {
+        id,
+      },
+      relations: {
+        company: true,
+      },
+    });
   }
+
+  async update(id: number) {}
 }

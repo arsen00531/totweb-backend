@@ -16,5 +16,6 @@ import { CompanyModule } from 'src/company/company.module';
   ],
   controllers: [VacancyController],
   providers: [VacancyService],
+  exports: [VacancyService],
 })
 export class VacancyModule {}
