@@ -12,6 +12,7 @@ import { ProfessionService } from 'src/profession/profession.service';
 import { FindAllQuery } from './query/findAll.query';
 import { CompanyService } from 'src/company/company.service';
 import { TAccessCompanyPayload } from 'src/token/types/payload.type';
+import { UpdateVacancyDto } from './dto/updateVacancy.dto';
 
 @Injectable()
 export class VacancyService {
@@ -105,9 +106,32 @@ export class VacancyService {
       },
       relations: {
         company: true,
+        profession: true
       },
     });
   }
 
-  async update(id: number) {}
+  async update(id: number, updateVacancyDto: UpdateVacancyDto) {
+    const vacancy = await this.vacancyRepository.findOneBy({ id })
+
+    if (!vacancy) {
+      throw new BadRequestException('Vacancy was not found')
+    }
+
+    Object.assign(vacancy, {
+      ...updateVacancyDto
+    })
+
+    return this.vacancyRepository.save(vacancy)
+  }
+
+  async delete(id: number) {
+    const vacancy = await this.vacancyRepository.findOneBy({ id })
+
+    if (!vacancy) {
+      throw new BadRequestException('Vacancy was not found')
+    }
+
+    return this.vacancyRepository.remove(vacancy)
+  }
 }

@@ -1,9 +1,11 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   ParseIntPipe,
   Post,
+  Put,
   Query,
   Req,
   UseGuards,
@@ -18,6 +20,7 @@ import { Request } from 'express';
 import { FindAllQuery } from './query/findAll.query';
 import { CompanyAuthGuard } from 'src/company/guards/companyAuth.guard';
 import { CompanyRoleGuard } from 'src/company/guards/companyRole.guard';
+import { UpdateVacancyDto } from './dto/updateVacancy.dto';
 
 @Controller('vacancy')
 export class VacancyController {
@@ -40,5 +43,15 @@ export class VacancyController {
   @Get('findOne')
   findOne(@Query('id', ParseIntPipe) id: number) {
     return this.vacancyService.findOne(id);
+  }
+
+  @Put('update')
+  update(@Query('id', ParseIntPipe) id: number, @Body() updateVacancyDto: UpdateVacancyDto) {
+    return this.vacancyService.update(id, updateVacancyDto);
+  }
+
+  @Delete('delete')
+  delete(@Query('id', ParseIntPipe) id: number) {
+    return this.vacancyService.delete(id);
   }
 }

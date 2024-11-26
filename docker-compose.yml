@@ -2,7 +2,7 @@ services:
   frontend:
     container_name: frontend
     build:
-      context: ../../client/Jocker/.
+      context: ../../client/totweb-frontend/.
     ports:
       - 8080:80
     expose:
@@ -41,30 +41,20 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
     restart: always
-  pgAdmin:
-    container_name: pgAdmin
-    image: dpage/pgadmin4
-    environment:
-      PGADMIN_DEFAULT_EMAIL: arsendag505@gmail.com
-      PGADMIN_DEFAULT_PASSWORD: root
-    volumes:
-      - ./servers.json:/pgadmin4/servers.json
-    ports:
-      - 5050:80
-  documentation:
-    container_name: documentation
-    env_file:
-      - .production.env
-    build:
-      context: /home/arsen00531/server/connect-birga-docs/.
-    volumes:
-      - /home/arsen00531/server/connect-birga-docs/dist/src/uploads:/app/backend/dist/src/uploads
-      - /app/backend/node_modules
-    ports:
-      - 5060:5000
-      - 9230:9229
-    command: npm run start:prod
-    restart: always
+  # documentation:
+  #   container_name: documentation
+  #   env_file:
+  #     - .production.env
+  #   build:
+  #     context: /home/arsen00531/server/connect-birga-docs/.
+  #   volumes:
+  #     - /home/arsen00531/server/connect-birga-docs/dist/src/uploads:/app/backend/dist/src/uploads
+  #     - /app/backend/node_modules
+  #   ports:
+  #     - 5060:5000
+  #     - 9230:9229
+  #   command: npm run start:prod
+  #   restart: always
 
 volumes:
   pgdata:
