@@ -19,6 +19,7 @@ export class EmailService {
 
   async sendMailSandBox(createEmailServerDto: CreateEmailDto) {
     try {
+      console.log("send main", createEmailServerDto)
       return await this.transporter.sendMail({
         from: '"Totweb 👻" <alialievaaliev@yandex.ru>', // sender address
         to: createEmailServerDto.to, // list of receivers
@@ -54,6 +55,8 @@ export class EmailService {
           </body>
           `, // html body
       });
-    } catch (error) {}
+    } catch (error) {
+      console.log(error)
+    }
   }
 }
