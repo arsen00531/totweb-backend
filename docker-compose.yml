@@ -41,20 +41,20 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
     restart: always
-  # documentation:
-  #   container_name: documentation
-  #   env_file:
-  #     - .production.env
-  #   build:
-  #     context: /home/arsen00531/server/connect-birga-docs/.
-  #   volumes:
-  #     - /home/arsen00531/server/connect-birga-docs/dist/src/uploads:/app/backend/dist/src/uploads
-  #     - /app/backend/node_modules
-  #   ports:
-  #     - 5060:5000
-  #     - 9230:9229
-  #   command: npm run start:prod
-  #   restart: always
+  documentation:
+    container_name: documentation
+    env_file:
+      - .production.env
+    build:
+      context: /home/arsen00531/server/connect-birga-docs/.
+    volumes:
+      - /home/arsen00531/server/connect-birga-docs/dist/src/uploads:/app/backend/dist/src/uploads
+      - /app/backend/node_modules
+    ports:
+      - 5060:5000
+      - 9230:9229
+    command: npm run start:prod
+    restart: always
 
 volumes:
   pgdata:
