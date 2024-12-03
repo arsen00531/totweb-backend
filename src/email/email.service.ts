@@ -48,10 +48,7 @@ export class EmailService {
               Добро пожаловать!
             </b>
             <br/>
-            Пожалуйста подтвердите свою почту, перейдя по этой ссылке 
-            <button>
-              <a href=${createEmailServerDto.link} style="color: #fff;">Перейти</a>
-            </button>
+            Пожалуйста подтвердите свою почту, перейдя по этой ссылке <a href=${createEmailServerDto.link} style="color: #fff;">Перейти</a>
           </body>
           `, // html body
       });
