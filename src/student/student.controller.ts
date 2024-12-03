@@ -55,8 +55,8 @@ export class StudentController {
   }
 
   @Get('activate')
-  activate(@Query('link') link: string) {
-    return this.studentService.activate(link);
+  activate(@Query('link') link: string, @Res() response: Response) {
+    return this.studentService.activate(link, response);
   }
 
   @Get('findAll')

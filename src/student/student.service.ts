@@ -185,7 +185,7 @@ export class StudentService {
     res.json(response);
   }
 
-  async activate(link: string) {
+  async activate(link: string, res: Response) {
     if (!link) {
       throw new BadRequestException('Link is invalid');
     }
@@ -200,7 +200,9 @@ export class StudentService {
 
     student.isActivated = true;
 
-    return await this.studentRepository.save(student);
+    await this.studentRepository.save(student);
+
+    res.redirect('')
   }
 
   async findAll() {
