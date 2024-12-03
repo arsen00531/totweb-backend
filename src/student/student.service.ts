@@ -202,7 +202,7 @@ export class StudentService {
 
     await this.studentRepository.save(student);
 
-    res.redirect('')
+    res.redirect(this.configService.getOrThrow('FRONT_END_URL'))
   }
 
   async findAll() {
