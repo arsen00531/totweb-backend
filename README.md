@@ -46,8 +46,17 @@ Employer Portal:
   Admin Panel:
 
   Platform Management: Admins can manage user accounts, monitor platform activity, and ensure smooth operation of the portal.
-  
+
   Content Management: Admins can manage and update content, including blog posts, FAQs, and help resources.
   
   Security and Compliance: Admins can ensure data security, privacy, and compliance with relevant regulations.
+
+Technology Stack
+  Frontend: React.js, Bootstrap5, zustand, UIs
+  Backend: Node.js, Nest.js Express.js
+  Database: PostgreSQL
+  Authentication: JWT, OAuth
+  Hosting: Timeweb cloud(CI/CD)
+  DEPLOY: docker-compose
+  Version Control: Git, GitHub
 
