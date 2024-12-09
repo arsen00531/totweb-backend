@@ -51,12 +51,13 @@ Employer Portal:
   
   Security and Compliance: Admins can ensure data security, privacy, and compliance with relevant regulations.
 
-Technology Stack
-  Frontend: React.js, Bootstrap5, zustand, UIs
-  Backend: Node.js, Nest.js Express.js
-  Database: PostgreSQL
-  Authentication: JWT, OAuth
-  Hosting: Timeweb cloud(CI/CD)
-  DEPLOY: docker-compose
-  Version Control: Git, GitHub
-
+<h3>Technology Stack:</h3>
+  <ul>
+    <li>Frontend: React.js, Bootstrap5, zustand, UIs</li>
+    <li>Backend: Node.js, Nest.js Express.js</li>
+    <li>Database: PostgreSQL</li>
+    <li>Authentication: JWT, OAuth</li>
+    <li>Hosting: Timeweb cloud(CI/CD)</li>
+    <li>DEPLOY: docker-compose</li>
+    <li>Version Control: Git, GitHub</li>
+  </ul>
