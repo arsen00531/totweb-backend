@@ -174,7 +174,7 @@ export class CompanyService {
     res.json(response);
   }
 
-  async activate(link: string) {
+  async activate(link: string, res: Response) {
     if (!link) {
       throw new BadRequestException('Link is invalid');
     }
@@ -189,7 +189,9 @@ export class CompanyService {
 
     company.isActivated = true;
 
-    return await this.companyRepository.save(company);
+    await this.companyRepository.save(company);
+
+    res.redirect(this.configService.getOrThrow('FRONT_END_URL'))
   }
 
   async findAll() {

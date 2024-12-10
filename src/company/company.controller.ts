@@ -53,8 +53,8 @@ export class CompanyController {
   }
 
   @Get('activate')
-  activate(@Query('link') link: string) {
-    return this.companyService.activate(link);
+  activate(@Query('link') link: string, @Res() res: Response) {
+    return this.companyService.activate(link, res);
   }
 
   @Roles(Role.Company)
