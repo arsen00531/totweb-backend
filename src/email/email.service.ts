@@ -19,7 +19,6 @@ export class EmailService {
 
   async sendMailSandBox(createEmailServerDto: CreateEmailDto) {
     try {
-      console.log("send main", createEmailServerDto)
       return await this.transporter.sendMail({
         from: '"Totweb 👻" <alialievaaliev@yandex.ru>', // sender address
         to: createEmailServerDto.to, // list of receivers

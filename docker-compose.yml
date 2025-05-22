@@ -20,7 +20,7 @@ services:
     volumes:
       - /backend/node_modules
     ports:
-      - 5000:5000
+      - 5001:5001
       - 9229:9229
     command: npm run start:prod
     depends_on:
