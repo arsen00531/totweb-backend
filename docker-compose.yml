@@ -1,10 +1,11 @@
 services:
   frontend:
+    image: arsen00531/totweb-frontend
     container_name: frontend
     build:
       context: ../../client/totweb-frontend/.
     ports:
-      - 8080:80
+      - 8081:80
     expose:
       - 80
     environment:
@@ -12,6 +13,7 @@ services:
     depends_on:
       - backend
   backend:
+    image: arsen00531/totweb-backend
     container_name: backend
     env_file:
       - .production.env
@@ -27,7 +29,7 @@ services:
       - postgres
     restart: always
   postgres:
-    container_name: postgres
+    container_name: totweb-postgres
     image: postgres:16-alpine
     env_file:
       - .env
